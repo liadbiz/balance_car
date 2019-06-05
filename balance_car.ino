@@ -42,14 +42,16 @@ byte inByte; //串口接收字节
 int num;
 double Setpoint;                               //角度DIP设定点，输入，输出
 double Setpoints, Outputs = 0;                         //速度DIP设定点，输入，输出
-double kp = 38, ki = 0.0, kd = 0.58;                   //需要你修改的参数
-double kp_speed =3.8, ki_speed = 0.11, kd_speed = 0.0;            // 需要你修改的参数
+double kp = 38, ki = 0.0, kd = 0.56;                   //需要你修改的参数
+double kp_speed =3.9, ki_speed = 0.12, kd_speed = 0.0;            // 需要你修改的参数
 double kp_turn = 28, ki_turn = 0, kd_turn = 0.29;                 //旋转PID设定
 const double PID_Original[6] = {38, 0.0, 0.58,4.0, 0.12, 0.0}; //恢复默认PID参数
 //转向PID参数
 double setp0 = 0, dpwm = 0, dl = 0; //角度平衡点，PWM差，死区，PWM1，PWM2
 float value;
 
+volatile long pulseSum = 0;  // 总的脉冲数目
+int flag = 0;
 
 //********************angle data*********************//
 float Q;
@@ -138,9 +140,10 @@ void countpluse()
   lz = count_left;
   rz = count_right;
 
+  
   count_left = 0;
   count_right = 0;
-
+  
   lpluse = lz;
   rpluse = rz;
 
@@ -165,6 +168,7 @@ void countpluse()
     lpluse = lpluse;
   }
 
+  
   //提起判断
   balancecar.stopr += rpluse;
   balancecar.stopl += lpluse;
@@ -350,6 +354,21 @@ float voltage_test()
   //0.35是由于电阻的精度问题所作的调整值。
   return fVoltage;
 }
+
+void walk()
+{
+  ResetCarState();
+  while(pulseSum < 5 * 780)
+  {
+    Serial.print(pulseSum);
+    Serial.print("\n");
+    front = 250;
+  }
+  
+  ResetCarState();
+  
+}
+
 // ===       主循环程序体       ===
 void loop() {
   Voltage=voltage_test();
@@ -476,6 +495,14 @@ void loop() {
 
   }
   
+  if (flag == 0)
+  {
+    delay(3000);
+    walk();
+    flag = 1;
+  }
+  
+  
   switch (g_carstate)
   {
     case enSTOP: turnl = 0; turnr = 0;  front = 0; back = 0; spinl = 0; spinr = 0; turnoutput = 0; break;
@@ -503,6 +530,7 @@ void loop() {
 void Code_left() {
 
   count_left ++;
+  pulseSum += count_left;
 
 } //左测速码盘计数
 
