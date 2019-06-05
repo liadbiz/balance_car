@@ -49,11 +49,14 @@ const double PID_Original[6] = {38, 0.0, 0.58, 4.0, 0.12, 0.0}; //恢复默认PI
 double setp0 = 0, dpwm = 0, dl = 0; //角度平衡点，PWM差，死区，PWM1，PWM2
 float value;
 
-///////////////////自定义的变量//////////////////////////
+///////////////////测速相关变量//////////////////////////
 
 volatile long pulseSum = 0;  // 总的脉冲数目
 int flag = 0;
 
+///////////////////测速相关变量//////////////////////////
+
+//////////////////测距相关变量///////////////////////////
 const int trigPin = A2;
 
 const int echoPin = A3;
@@ -62,9 +65,13 @@ long duration;
 
 int distance;  // 超声波检测的距离
 
+//////////////////测距相关变量///////////////////////////
+
+////////////////////Q-learning 相关变量///////////////
+
 int loopTime; // 小车走的次数，相当于做action的次数
 
-// Q-learning 相关参数
+
 float gamma = 0.8;
 float alpha = 0.1;
 
@@ -90,7 +97,8 @@ int reward = 0;
 
 float lookAheadValue = 0.0;
 
-///////////////////自定义的变量//////////////////////////
+////////////////////Q-learning 相关变量///////////////
+
 
 //********************angle data*********************//
 float Q;
@@ -101,12 +109,14 @@ float angle0 = 0.00; //机械平衡角
 int slong;
 //********************angle data*********************//
 
+
 //***************Kalman_Filter*********************//
 float Q_angle = 0.001, Q_gyro = 0.005; //角度数据置信度,角速度数据置信度
 float R_angle = 0.5 , C_0 = 1;
 float timeChange = 5; //滤波法采样时间间隔毫秒
 float dt = timeChange * 0.001; //注意：dt的取值为滤波器采样时间
 //***************Kalman_Filter*********************//
+
 
 //*********************************************
 //******************** speed count ************
@@ -161,15 +171,9 @@ int turnr = 0;//右转标志
 int spinl = 0;//左旋转标志
 int spinr = 0;//右旋转标志
 int bluetoothvalue;//蓝牙控制量
+
 //////////////蓝牙控制量///////////////////
 
-//////////////////超声波速度//////////////////
-
-// int chaoshengbo = 0;
-// int tingzhi = 0;
-// int jishi = 0;
-
-//////////////////超声波速度//////////////////
 
 
 //////////////////////脉冲计算///////////////////////
@@ -361,11 +365,11 @@ void setup() {
   MsTimer2::set(5, inter);
   MsTimer2::start();
 
-  delay(8000);
+  
   // 第一次测得距离，算出每次走的距离
-  getDistance();
-  startDistance = distance;
-  deltaDistance = int( (startDistance - 50) / 5 );
+  //getDistance();
+  //startDistance = distance;
+  //deltaDistance = int( (startDistance - 50) / 5 );
 
 }
 
@@ -408,13 +412,13 @@ void walk()
 {
   ResetCarState();
   //while (pulseSum < (deltaDistance / (3.1415926 * 7) ) * 390 )  // 根据轮子周长和单次走的距离算要走多少脉冲，这里是存在误差的。
-  while(pulseSum < 5 * 390);
+  while(pulseSum < 5 * 780);
   {
     //Serial.print(pulseSum);
     //Serial.print("\n");
-    getDistance();
-    Serial.print(distance);
-    Serial.print("\n");
+    //getDistance();
+    //Serial.print(distance);
+    //Serial.print("\n");
     front = 250;
   }
 
@@ -661,17 +665,7 @@ void loop() {
 
   }
 
-  // 走一段距离停下
-  //if (flag == 0)
-  //{
-    //delay(3000);
-    //walk();
-    //flag = 1;
-  //}
-
-    getDistance();
-    Serial.print(distance);
-    Serial.print("\n");
+ 
 
     if (flag == 0)
     {
