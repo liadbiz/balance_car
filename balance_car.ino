@@ -356,159 +356,137 @@ void loop() {
   //Serial.print(Voltage,DEC);
  // Serial.print("\r\n");
   
- String returnstr = "$0,0,0,0,0,0,0,0,0,0,0,0cm,0.0V#";  //默认发送
+  String returnstr = "$0,0,0,0,0,0,0,0,0,0,0,0cm,0.0V#";  //默认发送
 
     //主函数中循环检测及叠加脉冲 测定小车车速  使用电平改变既进入脉冲叠加 增加电机的脉冲数，保证小车的精确度。
-    attachInterrupt(0, Code_left, CHANGE);
-    attachPinChangeInterrupt(PinA_right, Code_right, CHANGE);
+  attachInterrupt(0, Code_left, CHANGE);
+  attachPinChangeInterrupt(PinA_right, Code_right, CHANGE);
    
-    //kongzhi(); //蓝牙接口
-    //
-  
-    //Serial.println(kalmanfilter.angle);
-    //Serial.print("\t");
-    //Serial.print(bluetoothvalue);
-    //Serial.print("\t");
-    //      Serial.print( balancecar.angleoutput);
-    //      Serial.print("\t");
-    //      Serial.print(balancecar.pwm1);
-    //      Serial.print("\t");
-    //      Serial.println(balancecar.pwm2);
-    //      Serial.print("\t");
-    //      Serial.println(balancecar.stopr);
-    //      Serial.print("\t");
     
-    if (newLineReceived)
+  if (newLineReceived)
+  {
+    switch (inputString[1])
     {
-      switch (inputString[1])
-      {
-        case run_car:   g_carstate = enRUN;   break;
-        case back_car:  g_carstate = enBACK;  break;
-        case left_car:  g_carstate = enLEFT;  break;
-        case right_car: g_carstate = enRIGHT; break;
-        case stop_car:  g_carstate = enSTOP;  break;
-        default: g_carstate = enSTOP; break;
-      }
-      //判断协议是否有丢包
-    /* if(inputString.length() < 21)
-      {
-          //恢复默认
-        inputString = "";   // clear the string
-        newLineReceived = false;
-        //Serial.print(returnstr);
-        goto a;
-      }*/
-      if (inputString[3] == '1' && inputString.length() == 21) //左摇
-      {
-        g_carstate = enTLEFT;
-        //Serial.print(returnstr);
-      }
-      else if (inputString[3] == '2' && inputString.length() == 21) //右摇
-      {
-        g_carstate = enTRIGHT;
-       // Serial.print(returnstr);
-      }
-  
-      if (inputString[5] == '1') //查询PID
-      {
-        char charkp[7], charkd[7], charkpspeed[7], charkispeed[7];
-  
-        dtostrf(kp, 3, 2, charkp);  // 相當於 %3.2f
-        dtostrf(kd, 3, 2, charkd);  // 相當於 %3.2f
-        dtostrf(kp_speed, 3, 2, charkpspeed);  // 相當於 %3.2f
-        dtostrf(ki_speed, 3, 2, charkispeed);  // 相當於 %3.2f
-  
-        String strkp = charkp; String strkd = charkd; String strkpspeed = charkpspeed; String strkispeed = charkispeed;
-  
-        returntemp = "$0,0,0,0,0,0,AP" + strkp + ",AD" + strkd + ",VP" + strkpspeed + ",VI" + strkispeed + "#";
-  
-        Serial.print(returntemp); //返回协议数据包
-      }
-      else if (inputString[5] == '2') //恢复PID
-      {
-        ResetPID();
-        Serial.print("$OK#"); //返回协议数据包
-      }
-  
-      if (inputString[7] == '1') //自动上报
-      {
-        g_autoup = true;
-        Serial.print("$OK#"); //返回协议数据包
-      }
-      else if (inputString[7] == '2') //停止自动上报
-      {
-        g_autoup = false;
-        Serial.print("$OK#"); //返回协议数据包
-      }
-  
-      if (inputString[9] == '1') //角度环更新 $0,0,0,0,1,1,AP23.54,AD85.45,VP10.78,VI0.26#
-      {
-        int i = inputString.indexOf("AP");
-        int ii = inputString.indexOf(",", i);
-        if(ii > i)
-        {
-          String m_skp = inputString.substring(i + 2, ii);
-          m_skp.replace(".", "");
-          int m_kp = m_skp.toInt();
-          kp = (double)( (double)m_kp / 100.0f);
-        }
-       
-  
-        i = inputString.indexOf("AD");
-        ii = inputString.indexOf(",", i);
-        if(ii > i)
-        {
-          //ki = inputString.substring(i+2, ii);
-          String m_skd = inputString.substring(i + 2, ii);
-          m_skd.replace(".", "");
-          int m_kd = m_skd.toInt();
-          kd = (double)( (double)m_kd / 100.0f);
-        }
-        Serial.print("$OK#"); //返回协议数据包
-      }
-  
-      if (inputString[11] == '1') //速度环更新
-      {
-        int i = inputString.indexOf("VP");
-        int ii = inputString.indexOf(",", i);
-        if(ii > i)
-        {
-          String m_svp = inputString.substring(i + 2, ii);
-          m_svp.replace(".", "");
-          int m_vp = m_svp.toInt();
-          kp_speed = (double)( (double)m_vp / 100.0f);
-        }
-       
-  
-        i = inputString.indexOf("VI");
-        ii = inputString.indexOf("#", i);
-        if(ii > i)
-        {
-          String m_svi = inputString.substring(i + 2, ii);
-          m_svi.replace(".", "");
-          int m_vi = m_svi.toInt();
-          ki_speed = (double)( (double)m_vi / 100.0f);
-          Serial.print("$OK#"); //返回协议数据包
-        }
-       
-      }
-      //恢复默认
-      inputString = "";   // clear the string
-      newLineReceived = false;
-  
+      case run_car:   g_carstate = enRUN;   break;
+      case back_car:  g_carstate = enBACK;  break;
+      case left_car:  g_carstate = enLEFT;  break;
+      case right_car: g_carstate = enRIGHT; break;
+      case stop_car:  g_carstate = enSTOP;  break;
+      default: g_carstate = enSTOP; break;
     }
-  
-a:    switch (g_carstate)
+    //判断协议是否有丢包
+    
+    if (inputString[3] == '1' && inputString.length() == 21) //左摇
     {
-      case enSTOP: turnl = 0; turnr = 0;  front = 0; back = 0; spinl = 0; spinr = 0; turnoutput = 0; break;
-      case enRUN: ResetCarState();front = 250; break;
-      case enLEFT: turnl = 1; break;
-      case enRIGHT: turnr = 1; break;
-      case enBACK: ResetCarState();back = -250; break;
-      case enTLEFT: spinl = 1; break;
-      case enTRIGHT: spinr = 1; break;
-      default: front = 0; back = 0; turnl = 0; turnr = 0; spinl = 0; spinr = 0; turnoutput = 0; break;
+      g_carstate = enTLEFT;
+      //Serial.print(returnstr);
     }
+    else if (inputString[3] == '2' && inputString.length() == 21) //右摇
+    {
+      g_carstate = enTRIGHT;
+     // Serial.print(returnstr);
+    }
+
+    if (inputString[5] == '1') //查询PID
+    {
+      char charkp[7], charkd[7], charkpspeed[7], charkispeed[7];
+
+      dtostrf(kp, 3, 2, charkp);  // 相當於 %3.2f
+      dtostrf(kd, 3, 2, charkd);  // 相當於 %3.2f
+      dtostrf(kp_speed, 3, 2, charkpspeed);  // 相當於 %3.2f
+      dtostrf(ki_speed, 3, 2, charkispeed);  // 相當於 %3.2f
+
+      String strkp = charkp; String strkd = charkd; String strkpspeed = charkpspeed; String strkispeed = charkispeed;
+
+      returntemp = "$0,0,0,0,0,0,AP" + strkp + ",AD" + strkd + ",VP" + strkpspeed + ",VI" + strkispeed + "#";
+
+      Serial.print(returntemp); //返回协议数据包
+    }
+    else if (inputString[5] == '2') //恢复PID
+    {
+      ResetPID();
+      Serial.print("$OK#"); //返回协议数据包
+    }
+
+    if (inputString[7] == '1') //自动上报
+    {
+      g_autoup = true;
+      Serial.print("$OK#"); //返回协议数据包
+    }
+    else if (inputString[7] == '2') //停止自动上报
+    {
+      g_autoup = false;
+      Serial.print("$OK#"); //返回协议数据包
+    }
+
+    if (inputString[9] == '1') //角度环更新 $0,0,0,0,1,1,AP23.54,AD85.45,VP10.78,VI0.26#
+    {
+      int i = inputString.indexOf("AP");
+      int ii = inputString.indexOf(",", i);
+      if(ii > i)
+      {
+        String m_skp = inputString.substring(i + 2, ii);
+        m_skp.replace(".", "");
+        int m_kp = m_skp.toInt();
+        kp = (double)( (double)m_kp / 100.0f);
+      }
+     
+
+      i = inputString.indexOf("AD");
+      ii = inputString.indexOf(",", i);
+      if(ii > i)
+      {
+        //ki = inputString.substring(i+2, ii);
+        String m_skd = inputString.substring(i + 2, ii);
+        m_skd.replace(".", "");
+        int m_kd = m_skd.toInt();
+        kd = (double)( (double)m_kd / 100.0f);
+      }
+      Serial.print("$OK#"); //返回协议数据包
+    }
+
+    if (inputString[11] == '1') //速度环更新
+    {
+      int i = inputString.indexOf("VP");
+      int ii = inputString.indexOf(",", i);
+      if(ii > i)
+      {
+        String m_svp = inputString.substring(i + 2, ii);
+        m_svp.replace(".", "");
+        int m_vp = m_svp.toInt();
+        kp_speed = (double)( (double)m_vp / 100.0f);
+      }
+     
+
+      i = inputString.indexOf("VI");
+      ii = inputString.indexOf("#", i);
+      if(ii > i)
+      {
+        String m_svi = inputString.substring(i + 2, ii);
+        m_svi.replace(".", "");
+        int m_vi = m_svi.toInt();
+        ki_speed = (double)( (double)m_vi / 100.0f);
+        Serial.print("$OK#"); //返回协议数据包
+      }
+     
+    }
+    //恢复默认
+    inputString = "";   // clear the string
+    newLineReceived = false;
+
+  }
+  
+  switch (g_carstate)
+  {
+    case enSTOP: turnl = 0; turnr = 0;  front = 0; back = 0; spinl = 0; spinr = 0; turnoutput = 0; break;
+    case enRUN: ResetCarState();front = 250; break;
+    case enLEFT: turnl = 1; break;
+    case enRIGHT: turnr = 1; break;
+    case enBACK: ResetCarState();back = -250; break;
+    case enTLEFT: spinl = 1; break;
+    case enTRIGHT: spinr = 1; break;
+    default: front = 0; back = 0; turnl = 0; turnr = 0; spinl = 0; spinr = 0; turnoutput = 0; break;
+  }
   
    //增加自动上报
   SendAutoUp();
@@ -571,5 +549,3 @@ void serialEvent()
     }	
   }
 }
-
-
