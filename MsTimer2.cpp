@@ -124,4 +124,3 @@ ISR(TIMER2_OVF_vect) {
 #endif
 	MsTimer2::_overflow();
 }
-

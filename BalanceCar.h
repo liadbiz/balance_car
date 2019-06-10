@@ -31,10 +31,10 @@ public:
 	int stopr = 0;
 	double angleoutput=0,pwm1 = 0, pwm2 = 0;
 private:
-	float speeds_filterold;//ËÙ¶ÈÂË²¨
-	float positions;//Î»ÖÃ
-	int turnmax = 0;                                    //Ðý×ªÊä³ö·ùÖµ
-	int turnmin = 0;                                  //Ðý×ªÊä³ö·ùÖµ
+	float speeds_filterold;//ï¿½Ù¶ï¿½ï¿½Ë²ï¿½
+	float positions;//Î»ï¿½ï¿½
+	int turnmax = 0;                                    //ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+	int turnmin = 0;                                  //ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 	float turnout = 0;
 	int flag1 = 0;
 	int flag2 = 0;
